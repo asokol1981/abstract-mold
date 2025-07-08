@@ -18,26 +18,48 @@ composer require asokol1981/abstract-mold
 ```php
 use ASokol1981\AbstractMold\AbstractMold;
 
-class UserMold extends AbstractMold
+final class UserMold extends AbstractMold
 {
     protected function publicFields(): array
     {
-        return ['name', 'email'];
+        return ['name', 'email', 'age'];
     }
 
     protected function validated(): array
     {
+        $age = $this->get('age');
+
+        if ($age !== null && !is_numeric($age)) {
+            throw new \InvalidArgumentException('Age must be numeric');
+        }
+
         return [
-            'name' => trim((string) $this->get('name', '')),
+            'name' => (string) $this->get('name', ''),
             'email' => strtolower((string) $this->get('email', '')),
+            'age' => $age !== null ? (int) $age : null,
         ];
     }
 }
 
-$mold = new UserMold(['name' => 'John', 'email' => 'JOHN@EXAMPLE.COM']);
-$mold->withRawData(['name' => 'Johnny']);
-$data = $mold->toArray();
-// $data = ['name' => 'Johnny', 'email' => 'john@example.com'];
+// Create mold with initial data
+$mold = new UserMold(['name' => 'John', 'email' => 'John@EXAMPLE.COM']);
+
+// Apply partial patch
+$mold->applyPatch(['age' => '30']);
+
+// Get all validated data (for full update or create)
+$data = $mold->allValidated();
+// [
+//     'name' => 'John',
+//     'email' => 'john@example.com',
+//     'age' => 30
+// ]
+
+// Get only patched validated data (for partial update)
+$patchData = $mold->validatedPatch();
+// [
+//     'age' => 30
+// ]
 ```
 
 ## ⚖️ Philosophy Highlights
