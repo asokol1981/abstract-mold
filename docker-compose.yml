@@ -1,0 +1,29 @@
+services:
+  abstract-mold:
+    image: asokol1981/abstract-mold
+    container_name: abstract-mold
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - "./:/app"
+      - ./docker/entrypoint.sh:/entrypoint.sh
+      - "home_user:/home/appuser/"
+    working_dir: /app
+    user: appuser
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    entrypoint: ["/entrypoint.sh"]
+    networks:
+      - net
+
+networks:
+  net:
+
+volumes:
+  home_user:
+    driver: local

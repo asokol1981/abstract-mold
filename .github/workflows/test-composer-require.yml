@@ -1,0 +1,93 @@
+name: test composer require
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/test-composer-require.yml"
+      - ".gitattributes"
+      - "composer.json"
+      - "Makefile"
+  pull_request:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/test-composer-require.yml"
+      - ".gitattributes"
+      - "composer.json"
+      - "Makefile"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php:
+          - "8.1"
+          - "8.2"
+          - "8.3"
+
+    steps:
+      - name: Checkout (just for context)
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Create project directory
+        run: mkdir test-project
+
+      - name: Create minimal composer.json
+        working-directory: test-project
+        run: |
+          echo '{
+            "name": "dummy/test-project",
+            "description": "Temporary test project",
+            "require": {}
+          }' > composer.json
+
+      - name: Composer require package
+        working-directory: test-project
+        run: composer require asokol1981/abstract-mold
+
+      - name: Create test.php to validate package functionality
+        working-directory: test-project
+        run: |
+          echo "<?php
+          require __DIR__ . '/vendor/autoload.php';
+
+          use ASokol1981\\AbstractMold\\AbstractMold;
+
+          class TestMold extends AbstractMold {
+              protected function publicFields(): array {
+                  return ['foo', 'bar'];
+              }
+
+              protected function validated(): array {
+                  return [
+                      'foo' => (string) \$this->get('foo', ''),
+                      'bar' => (string) \$this->get('bar', '')
+                  ];
+              }
+          }
+
+          \$mold = new TestMold(['foo' => 'composer']);
+          \$mold->applyPatch(['bar' => 'require']);
+          \$result = \$mold->allValidated();
+
+          if (!isset(\$result['foo']) || \$result['foo'] !== 'composer') {
+              echo 'Test failed: foo invalid' . PHP_EOL;
+              exit(1);
+          }
+          if (!isset(\$result['bar']) || \$result['bar'] !== 'require') {
+              echo 'Test failed: bar invalid' . PHP_EOL;
+              exit(1);
+          }
+
+          echo 'Mold test passed.' . PHP_EOL;
+          " > test.php
+
+      - name: Run smoke test
+        working-directory: test-project
+        run: php test.php
