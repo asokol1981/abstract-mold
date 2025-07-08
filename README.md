@@ -1,5 +1,6 @@
-
 # AbstractMold
+
+[![tests](https://github.com/asokol1981/abstract-mold/workflows/tests/badge.svg)](https://github.com/asokol1981/abstract-mold/actions) [![codecov](https://codecov.io/gh/asokol1981/abstract-mold/branch/main/graph/badge.svg)](https://codecov.io/gh/asokol1981/abstract-mold) [![downloads](https://img.shields.io/packagist/dt/asokol1981/abstract-mold.svg)](https://packagist.org/packages/asokol1981/abstract-mold)
 
 **AbstractMold** is a base abstract class for centralizing all changes to an entity using user-provided data, whether it's full creation, complete update, or partial modification (patch).
 
