@@ -53,8 +53,8 @@ abstract class AbstractImmutableMold
     /**
      * Constructor: combines base data and changes.
      *
-     * @param array<string, mixed> $base    Initial base data (e.g., from entity or defaults)
-     * @param array<string, mixed> $changes User-provided changes (e.g., from a form or API request)
+     * @param array<string, mixed> $base                    Initial base data (e.g., from entity or defaults)
+     * @param array<string, mixed> $changes                 User-provided changes (e.g., from a form or API request)
      * @param bool                 $errorIfFieldIsNotPublic Whether to throw on unknown fields
      */
     final public function __construct(array $base = [], array $changes = [], bool $errorIfFieldIsNotPublic = true)
@@ -67,7 +67,6 @@ abstract class AbstractImmutableMold
      * Applies changes (patch).
      *
      * @param array<string, mixed> $changes
-     * @param bool                 $errorIfFieldIsNotPublic
      */
     private function setChanges(array $changes, bool $errorIfFieldIsNotPublic): void
     {

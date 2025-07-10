@@ -55,7 +55,6 @@ abstract class AbstractMutableMold
      * Constructor with optional base data.
      *
      * @param array<string, mixed> $base
-     * @param bool                 $errorIfFieldIsNotPublic
      */
     final public function __construct(array $base = [], bool $errorIfFieldIsNotPublic = true)
     {
@@ -64,14 +63,11 @@ abstract class AbstractMutableMold
 
     /**
      * Change a single field.
-     *
-     * @param string $key
-     * @param mixed  $value
-     * @param bool   $errorIfFieldIsNotPublic
      */
     final public function change(string $key, mixed $value, bool $errorIfFieldIsNotPublic = true): static
     {
         $this->setChange($key, $value, $errorIfFieldIsNotPublic);
+
         return $this;
     }
 
@@ -79,13 +75,13 @@ abstract class AbstractMutableMold
      * Change multiple fields at once.
      *
      * @param array<string, mixed> $changes
-     * @param bool                 $errorIfFieldIsNotPublic
      */
     final public function changes(array $changes, bool $errorIfFieldIsNotPublic = true): static
     {
         foreach ($changes as $key => $value) {
             $this->change($key, $value, $errorIfFieldIsNotPublic);
         }
+
         return $this;
     }
 

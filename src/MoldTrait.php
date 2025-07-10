@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of AbstractMold.
+ *
+ * (c) Aleksei Sokolov <asokol.beststudio@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace ASokol1981\AbstractMold;
 
 trait MoldTrait
@@ -28,18 +39,15 @@ trait MoldTrait
     /**
      * Returns validated full data or a single value by key.
      *
-     * @param string|null $key
-     * @param mixed       $default
-     *
      * @return array<string, mixed>|mixed
      */
     final public function validated(?string $key = null, mixed $default = null): mixed
     {
-        if ($this->validatedCache === null) {
+        if (null === $this->validatedCache) {
             $this->validatedCache = $this->validatedData();
         }
 
-        if ($key === null) {
+        if (null === $key) {
             return $this->validatedCache;
         }
 
@@ -48,9 +56,6 @@ trait MoldTrait
 
     /**
      * Returns validated data only for explicitly changed fields or a single value by key.
-     *
-     * @param string|null $key
-     * @param mixed       $default
      *
      * @return array<string, mixed>|mixed
      */
@@ -61,7 +66,7 @@ trait MoldTrait
             $this->changedFields
         );
 
-        if ($key === null) {
+        if (null === $key) {
             return $changes;
         }
 
@@ -70,10 +75,6 @@ trait MoldTrait
 
     /**
      * Internal method to set a single field value and mark it as changed.
-     *
-     * @param string $key
-     * @param mixed  $value
-     * @param bool   $errorIfFieldIsNotPublic
      */
     private function setChange(string $key, mixed $value, bool $errorIfFieldIsNotPublic): void
     {
@@ -88,7 +89,6 @@ trait MoldTrait
      * Fills base data (initial entity or defaults).
      *
      * @param array<string, mixed> $base
-     * @param bool                 $errorIfFieldIsNotPublic
      */
     private function setBase(array $base, bool $errorIfFieldIsNotPublic): void
     {
@@ -102,11 +102,6 @@ trait MoldTrait
     /**
      * Checks if a field is public (allowed).
      *
-     * @param string $key
-     * @param bool   $errorIfFieldIsNotPublic
-     *
-     * @return bool
-     *
      * @throws \InvalidArgumentException
      */
     private function isPublicField(string $key, bool $errorIfFieldIsNotPublic): bool
@@ -115,22 +110,21 @@ trait MoldTrait
             if ($errorIfFieldIsNotPublic) {
                 throw new \InvalidArgumentException("Field {$key} is not allowed");
             }
+
             return false;
         }
+
         return true;
     }
 
     /**
      * Returns raw (unvalidated) data, or a single value by key.
      *
-     * @param string|null $key
-     * @param mixed       $default
-     *
      * @return array<string, mixed>|mixed
      */
     final protected function getRawData(?string $key = null, mixed $default = null): mixed
     {
-        if ($key === null) {
+        if (null === $key) {
             return $this->rawData;
         }
 
