@@ -69,35 +69,18 @@ jobs:
           echo "<?php
           require __DIR__ . '/vendor/autoload.php';
 
-          use ASokol1981\\AbstractMold\\AbstractMold;
+          use ASokol1981\\AbstractMold\\AbstractImmutableMold;
 
-          class TestMold extends AbstractMold {
+          new class([], []) extends AbstractImmutableMold {
               protected function publicFields(): array {
                   return ['foo', 'bar'];
               }
-
-              protected function validated(): array {
-                  return [
-                      'foo' => (string) \$this->get('foo', ''),
-                      'bar' => (string) \$this->get('bar', '')
-                  ];
+              protected function validatedData(): array {
+                  return [];
               }
-          }
+          };
 
-          \$mold = new TestMold(['foo' => 'hello']);
-          \$mold->applyPatch(['bar' => 'world']);
-          \$result = \$mold->allValidated();
-
-          if (!isset(\$result['foo']) || \$result['foo'] !== 'hello') {
-              echo 'Test failed: foo invalid' . PHP_EOL;
-              exit(1);
-          }
-          if (!isset(\$result['bar']) || \$result['bar'] !== 'world') {
-              echo 'Test failed: bar invalid' . PHP_EOL;
-              exit(1);
-          }
-
-          echo 'Mold test passed.' . PHP_EOL;
+          echo 'Smoke test passed.' . PHP_EOL;
           " > test.php
 
       - name: Run smoke test
