@@ -1,12 +1,43 @@
+
 # AbstractMold
 
 [![tests](https://github.com/asokol1981/abstract-mold/workflows/tests/badge.svg)](https://github.com/asokol1981/abstract-mold/actions) [![codecov](https://codecov.io/gh/asokol1981/abstract-mold/branch/main/graph/badge.svg)](https://codecov.io/gh/asokol1981/abstract-mold) [![downloads](https://img.shields.io/packagist/dt/asokol1981/abstract-mold.svg)](https://packagist.org/packages/asokol1981/abstract-mold)
 
-**AbstractMold** is a base abstract class for centralizing all changes to an entity using user-provided data, whether it's full creation, complete update, or partial modification (patch).
+💎 **AbstractMold** is a set of abstract classes and shared utilities for centralized management of entity data changes, with strict control and single-point validation.
 
-## 💡 Philosophy
+---
 
-AbstractMold acts as a single, centralized point for handling and validating all data changes coming from the user. You must explicitly declare allowed fields via `publicFields()`, and implement `validated()` to return the final data array ready for storage.
+## ✨ Main idea
+
+A **Mold** acts as a single entry point for handling any incoming user data (creation, updates, or partial patches).
+All changes go through the mold to ensure:
+
+- Whitelisted allowed fields only.
+- Centralized validation and normalization logic.
+- Predictable and consistent data preparation.
+
+---
+
+## 🧩 Two mold types
+
+### 🟢 AbstractMutableMold
+
+Allows step-by-step incremental data changes and gradual accumulation of modifications.
+
+- Perfect for form scenarios or multi-step wizards.
+- You can modify fields one by one or in batches.
+- Tracks which fields were explicitly changed.
+
+---
+
+### 🔵 AbstractImmutableMold
+
+Accepts **base data** and a **patch** all at once in the constructor.
+
+- Ideal for APIs or services where you receive all data as a single payload.
+- Does not allow further modification after creation (immutable approach).
+
+---
 
 ## 🚀 Installation
 
@@ -14,72 +45,103 @@ AbstractMold acts as a single, centralized point for handling and validating all
 composer require asokol1981/abstract-mold
 ```
 
-## ✅ Usage
+---
+
+## 🚀 Usage examples
+
+### 🟢 AbstractMutableMold usage
 
 ```php
-use ASokol1981\AbstractMold\AbstractMold;
+use ASokol1981\AbstractMold\AbstractMutableMold;
 
-final class UserMold extends AbstractMold
+final class UserMutableMold extends AbstractMutableMold
 {
     protected function publicFields(): array
     {
         return ['name', 'email', 'age'];
     }
 
-    protected function validated(): array
+    protected function validatedData(): array
     {
-        $age = $this->get('age');
-
-        if ($age !== null && !is_numeric($age)) {
-            throw new \InvalidArgumentException('Age must be numeric');
-        }
+        $age = $this->getRawData('age');
 
         return [
-            'name' => (string) $this->get('name', ''),
-            'email' => strtolower((string) $this->get('email', '')),
+            'name' => (string) $this->getRawData('name', ''),
+            'email' => strtolower((string) $this->getRawData('email', '')),
             'age' => $age !== null ? (int) $age : null,
         ];
     }
 }
 
-// Create mold with initial data
-$mold = new UserMold(['name' => 'John', 'email' => 'John@EXAMPLE.COM']);
+// Usage
 
-// Apply partial patch
-$mold->applyPatch(['age' => '30']);
+$mold = new UserMutableMold(['name' => 'John', 'email' => 'John@EXAMPLE.COM']);
+$mold->change('name', 'Johnny');
+$mold->changes(['email' => 'Johnny@EXAMPLE.COM', 'age' => '25']);
 
-// Get all validated data (for full update or create)
-$data = $mold->allValidated();
-// [
-//     'name' => 'John',
-//     'email' => 'john@example.com',
-//     'age' => 30
-// ]
+$data = $mold->validated();
+// ['name' => 'Johnny', 'email' => 'johnny@example.com', 'age' => 25]
 
-// Get only patched validated data (for partial update)
-$patchData = $mold->validatedPatch();
-// [
-//     'age' => 30
-// ]
+$changes = $mold->changesValidated();
+// ['name' => 'Johnny', 'email' => 'johnny@example.com', 'age' => 25]
 ```
-
-## ⚖️ Philosophy Highlights
-
-- **Single point of data transformation**: whether you create, fully update, or patch — always via Mold.
-- **Strict whitelisting**: only fields declared in `publicFields()` are accepted.
-- **No internal validation flags**: final data correctness is ensured by `validated()`.
-
-## 🧪 Testing
-
-```bash
-composer install
-vendor/bin/phpunit
-```
-
-## 📄 License
-
-MIT License. See [LICENSE](LICENSE) file for details.
 
 ---
 
-Created by Aleksei Sokolov, in collaboration with ChatGPT (OpenAI), July 2025.
+### 🔵 AbstractImmutableMold usage
+
+```php
+use ASokol1981\AbstractMold\AbstractImmutableMold;
+
+final class UserImmutableMold extends AbstractImmutableMold
+{
+    protected function publicFields(): array
+    {
+        return ['name', 'email', 'age'];
+    }
+
+    protected function validatedData(): array
+    {
+        $age = $this->getRawData('age');
+
+        return [
+            'name' => (string) $this->getRawData('name', ''),
+            'email' => strtolower((string) $this->getRawData('email', '')),
+            'age' => $age !== null ? (int) $age : null,
+        ];
+    }
+}
+
+// Usage
+
+$mold = new UserImmutableMold(
+    ['name' => 'John', 'email' => 'John@EXAMPLE.COM'],
+    ['name' => 'Johnny', 'age' => '25']
+);
+
+$data = $mold->validated();
+// ['name' => 'Johnny', 'email' => 'john@example.com', 'age' => 25]
+
+$changes = $mold->changesValidated();
+// ['name' => 'Johnny', 'age' => 25]
+```
+
+---
+
+## ✅ Key advantages
+
+- 🚦 Strict allowed fields control.
+- 💾 Centralized validation logic.
+- 🧩 Flexible design for different scenarios (mutable vs immutable).
+- ⚡️ Built-in validated data cache for performance.
+- 🛡 Safe and predictable API.
+
+---
+
+## 🤝 License
+
+MIT © Aleksei Sokolov
+
+---
+
+Created in collaboration with ChatGPT (OpenAI), July 2025.
