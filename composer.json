@@ -2,7 +2,7 @@
     "name": "asokol1981/abstract-mold",
     "description": "A base abstract class for centralizing all changes to an entity using user-provided data (mold pattern).",
     "type": "library",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "license": "MIT",
     "require": {
         "php": ">=8.1"
